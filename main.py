@@ -18,7 +18,7 @@ GITHUB_REPO = "Prueba_Examen"
 GITHUB_FILE_PATH = "productos.csv"
 GITHUB_USERNAME = "JulianTorrest"
 GITHUB_TOKEN = "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"
-GITHUB_RAW_URL = f"https://raw.githubusercontent.com/{GITHUB_USERNAME}/{GITHUB_REPO}/main/{GITHUB_FILE_PATH}"
+GITHUB_RAW_URL = f"https://raw.githubusercontent.com/JulianTorrest/Prueba_Examen/main/productos.csv"
 API_URL = f"https://api.github.com/repos/{GITHUB_USERNAME}/{GITHUB_REPO}/contents/{GITHUB_FILE_PATH}"
 HEADERS = {"Authorization": f"token {GITHUB_TOKEN}"}
 
