@@ -1,1 +1,60 @@
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #333;
+        }
+        .details {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🎉 ¡Tu compra ha sido confirmada!</h2>
+        <p>Hola,</p>
+        <p>Has comprado el producto <strong>{{ producto }}</strong> por un total de <strong>${{ precio }}</strong>.</p>
+        
+        <div class="details">
+            <p>📦 Producto: <strong>{{ producto }}</strong></p>
+            <p>💲 Precio: <strong>${{ precio }}</strong></p>
+        </div>
+
+        <p>El vendedor se pondrá en contacto contigo pronto para coordinar la entrega.</p>
+
+        <a href="https://marketplace.com/mis-compras" class="btn">Ver mis compras</a>
+
+        <p class="footer">Si tienes alguna pregunta, contáctanos en <a href="mailto:soporte@marketplace.com">soporte@marketplace.com</a></p>
+    </div>
+</body>
+</html>
 
