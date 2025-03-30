@@ -9,7 +9,7 @@ def enviar_correo(destinatario, asunto, mensaje):
     mailer = emails.NewEmail(MAILERSEND_API_KEY)
     
     mail = {
-        "from": {"email": f"no-reply@{MAILERSEND_DOMAIN}", "name": "Marketplace"},
+        "from": {"email": f"no-reply@trial-r83ql3pwjevgzw1j.mlsender.net", "name": "Marketplace"},
         "to": [{"email": destinatario}],
         "subject": asunto,
         "text": mensaje
