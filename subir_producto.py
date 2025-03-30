@@ -8,7 +8,7 @@ import json
 GITHUB_REPO = "Prueba_Examen"  # Reemplaza con tu repositorio
 GITHUB_FILE_PATH = "productos.csv"
 GITHUB_USERNAME = "JulianTorrest"  # Tu usuario de GitHub
-GITHUB_TOKEN = "tu_token_personal"  # 🔑 Usa un token con permisos de escritura
+GITHUB_TOKEN = "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"  # 🔑 Usa un token con permisos de escritura
 GITHUB_RAW_URL = f"https://raw.githubusercontent.com/{GITHUB_USERNAME}/{GITHUB_REPO}/main/{GITHUB_FILE_PATH}"
 
 # URL API de GitHub para obtener y actualizar el archivo
