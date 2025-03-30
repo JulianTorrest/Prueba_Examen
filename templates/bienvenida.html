@@ -1,8 +1,61 @@
 <html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+        }
+        .message {
+            font-size: 16px;
+            color: #555;
+            margin-top: 10px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #007BFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
 <body>
-    <h2>¡Bienvenido a Marketplace, {{ usuario_nombre }}!</h2>
-    <p>Gracias por registrarte en nuestro Marketplace. Ahora puedes comenzar a comprar y vender productos.</p>
-    <p>¡Esperamos verte pronto!</p>
+    <div class="container">
+        <h2>🎉 ¡Bienvenido a Marketplace, {{ usuario_nombre }}! </h2>
+        
+        <p class="message">
+            Gracias por registrarte en <strong>Marketplace</strong>. Ahora puedes comenzar a comprar y vender productos de manera fácil y segura.
+        </p>
+
+        <p class="message">
+            Explora las mejores ofertas y publica tus productos en solo unos clics.
+        </p>
+
+        <a href="https://marketplace.com/explorar" class="btn">Explorar Marketplace</a>
+
+        <p class="footer">
+            Si necesitas ayuda, contáctanos en <a href="mailto:soporte@marketplace.com">soporte@marketplace.com</a>
+        </p>
+    </div>
 </body>
 </html>
-
