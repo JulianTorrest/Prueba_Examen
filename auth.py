@@ -10,7 +10,7 @@ from email_notifications import correo_registro
 GITHUB_REPO = "Prueba_Examen"
 GITHUB_FILE_PATH = "usuarios.csv"
 GITHUB_USERNAME = "JulianTorrest"
-GITHUB_TOKEN = "tu_token_personal"  # 🔑 Reemplaza con tu token de GitHub
+GITHUB_TOKEN = "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"  # 🔑 Reemplaza con tu token de GitHub
 GITHUB_RAW_URL = f"https://raw.githubusercontent.com/{GITHUB_USERNAME}/{GITHUB_REPO}/main/{GITHUB_FILE_PATH}"
 API_URL = f"https://api.github.com/repos/{GITHUB_USERNAME}/{GITHUB_REPO}/contents/{GITHUB_FILE_PATH}"
 HEADERS = {"Authorization": f"token {GITHUB_TOKEN}"}
