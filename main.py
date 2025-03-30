@@ -93,7 +93,7 @@ else:
                 st.session_state["user_name"] = nombre
                 correo_registro(email, nombre)
                 st.sidebar.success("Registro exitoso. Revisa tu correo.")
-                st.experimental_rerun()
+                st.rerun()
             else:
                 st.sidebar.error("⚠️ Completa todos los campos.")
 
