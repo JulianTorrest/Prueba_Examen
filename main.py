@@ -16,8 +16,11 @@ DATA_FILE = "productos.csv"
 
 # Cargar productos desde el archivo CSV
 def cargar_productos():
-    if os.path.exists(DATA_FILE):
-        return pd.read_csv(DATA_FILE)
+    if os.path.exists(DATA_FILE) and os.path.getsize(DATA_FILE) > 0:
+        try:
+            return pd.read_csv(DATA_FILE)
+        except pd.errors.EmptyDataError:
+            return pd.DataFrame(columns=["nombre", "precio", "vendedor", "imagen"])
     return pd.DataFrame(columns=["nombre", "precio", "vendedor", "imagen"])
 
 # Guardar un nuevo producto en el CSV
