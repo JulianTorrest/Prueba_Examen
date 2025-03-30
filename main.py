@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import os
+import requests
+import base64
 from email_notifications import (
     correo_registro,
     correo_producto_publicado,
@@ -11,24 +13,57 @@ from email_notifications import (
 # Configuración de la aplicación
 st.set_page_config(page_title="📦 Marketplace", layout="wide")
 
-# Archivo de almacenamiento de productos
-DATA_FILE = "productos.csv"
+# Configuración de GitHub
+GITHUB_REPO = "Prueba_Examen"
+GITHUB_FILE_PATH = "productos.csv"
+GITHUB_USERNAME = "JulianTorrest"
+GITHUB_TOKEN = "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"
+GITHUB_RAW_URL = f"https://raw.githubusercontent.com/{GITHUB_USERNAME}/{GITHUB_REPO}/main/{GITHUB_FILE_PATH}"
+API_URL = f"https://api.github.com/repos/{GITHUB_USERNAME}/{GITHUB_REPO}/contents/{GITHUB_FILE_PATH}"
+HEADERS = {"Authorization": f"token {GITHUB_TOKEN}"}
 
-# Cargar productos desde el archivo CSV
+# Cargar productos desde GitHub
 def cargar_productos():
-    if os.path.exists(DATA_FILE) and os.path.getsize(DATA_FILE) > 0:
-        try:
-            return pd.read_csv(DATA_FILE)
-        except pd.errors.EmptyDataError:
-            return pd.DataFrame(columns=["nombre", "precio", "vendedor", "imagen"])
+    try:
+        response = requests.get(GITHUB_RAW_URL)
+        if response.status_code == 200:
+            return pd.read_csv(GITHUB_RAW_URL)
+        else:
+            st.error(f"⚠️ Error al cargar productos desde GitHub: {response.status_code}")
+    except Exception as e:
+        st.error(f"⚠️ Error en la carga de productos: {e}")
     return pd.DataFrame(columns=["nombre", "precio", "vendedor", "imagen"])
 
-# Guardar un nuevo producto en el CSV
+# Subir productos a GitHub
 def guardar_producto(nombre, precio, vendedor, imagen):
     df = cargar_productos()
     nuevo_producto = pd.DataFrame([[nombre, precio, vendedor, imagen]], columns=df.columns)
     df = pd.concat([df, nuevo_producto], ignore_index=True)
-    df.to_csv(DATA_FILE, index=False)
+    
+    csv_data = df.to_csv(index=False)
+    try:
+        response = requests.get(API_URL, headers=HEADERS)
+        if response.status_code == 200:
+            file_data = response.json()
+            sha = file_data["sha"]
+        else:
+            sha = None  # Archivo no existe, se creará
+
+        payload = {
+            "message": "Actualización de productos",
+            "content": base64.b64encode(csv_data.encode()).decode(),
+            "branch": "main",
+        }
+        if sha:
+            payload["sha"] = sha
+
+        put_response = requests.put(API_URL, headers=HEADERS, json=payload)
+        if put_response.status_code in [200, 201]:
+            st.success("✅ Producto guardado correctamente en GitHub.")
+        else:
+            st.error(f"⚠️ Error al guardar en GitHub: {put_response.status_code}")
+    except Exception as e:
+        st.error(f"⚠️ Error al subir productos: {e}")
 
 # Manejo de sesión del usuario
 if "user_email" not in st.session_state:
@@ -108,3 +143,4 @@ def agregar_producto():
 
 # Ejecutar la función para agregar productos
 agregar_producto()
+
