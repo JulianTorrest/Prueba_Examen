@@ -1,6 +1,5 @@
 import os
 from mailersend import emails
-from config import MAILERSEND_API_KEY, MAILERSEND_DOMAIN
 import requests
 import json
 import logging
