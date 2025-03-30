@@ -1,6 +1,6 @@
 streamlit
-stripe
 firebase-admin
+stripe
 requests
-smtplib
+mailersend
 
