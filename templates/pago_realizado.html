@@ -1,8 +1,75 @@
 <html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h2 {
+            color: #28a745;
+        }
+        .message {
+            font-size: 16px;
+            color: #555;
+            margin-top: 10px;
+        }
+        .details {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: left;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #007BFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
 <body>
-    <h2>✅ Pago Exitoso</h2>
-    <p>Tu pago de <b>${{ monto }}</b> por el producto <b>{{ producto }}</b> se ha procesado correctamente.</p>
-    <p>Gracias por tu compra.</p>
+    <div class="container">
+        <h2>✅ ¡Pago realizado con éxito!</h2>
+        
+        <p class="message">
+            Hola, <strong>{{ usuario_nombre }}</strong>. Tu pago por <strong>{{ producto }}</strong> ha sido procesado correctamente.
+        </p>
+
+        <div class="details">
+            <p>🛍️ <strong>Producto:</strong> {{ producto }}</p>
+            <p>💳 <strong>Monto pagado:</strong> ${{ monto }}</p>
+            <p>📅 <strong>Fecha de pago:</strong> {{ fecha_pago }}</p>
+        </div>
+
+        <p class="message">
+            Nos alegra que confíes en Marketplace. El vendedor se pondrá en contacto contigo pronto.
+        </p>
+
+        <a href="https://marketplace.com/mis-compras" class="btn">Ver mis compras</a>
+
+        <p class="footer">
+            Si tienes alguna pregunta, contáctanos en <a href="mailto:soporte@marketplace.com">soporte@marketplace.com</a>
+        </p>
+    </div>
 </body>
 </html>
 
