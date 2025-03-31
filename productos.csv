@@ -1,1 +1,1 @@
-nombre,precio,vendedor,imagen
+nombre,descripcion,tipo_moneda,precio_local,precio_internacional,vendedor,imagen
