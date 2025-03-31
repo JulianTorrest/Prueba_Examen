@@ -111,13 +111,15 @@ if st.sidebar.button("Cerrar sesión"):
 # Función para cargar productos
 def cargar_productos():
     try:
-        return pd.read_csv(GITHUB_RAW_URL)
+        productos = pd.read_csv(GITHUB_RAW_URL)
+        st.write("📄 Productos cargados:", productos)  # 🔍 Ver qué se está cargando
+        return productos
     except FileNotFoundError:
+        st.warning("⚠️ No se encontró el archivo de productos.")
         return pd.DataFrame(columns=["nombre", "descripcion", "precio_local", "precio_internacional", "moneda", "vendedor", "imagen"])
     except Exception as e:
         st.error(f"⚠️ Error al leer productos: {e}")
         return pd.DataFrame()
-
 
 # Función para cargar tasas de cambio
 def cargar_tasas_cambio():
