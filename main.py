@@ -131,9 +131,7 @@ def cargar_tasas_cambio():
 # Obtener tasa de cambio de una moneda
 def obtener_tasa(moneda):
     tasas = cargar_tasas_cambio()
-    if moneda in tasas:
-        return tasas[moneda]
-    return None
+    return tasas.get(moneda, None)
 
 # Función para guardar producto
 def guardar_producto(nombre, descripcion, precio_local, moneda, vendedor, imagen):
@@ -150,23 +148,6 @@ def guardar_producto(nombre, descripcion, precio_local, moneda, vendedor, imagen
     df = pd.concat([df, nuevo_producto], ignore_index=True)
     df.to_csv(GITHUB_RAW_URL, index=False)
     st.success("✅ Producto guardado correctamente.")
-
-# Mostrar productos disponibles
-productos = cargar_productos()
-
-if not productos.empty:
-    for _, producto in productos.iterrows():
-        with st.container():
-            col1, col2 = st.columns([1, 3])
-            with col1:
-                st.image(producto["imagen"], width=150)
-            with col2:
-                st.subheader(producto["nombre"])
-                st.write(f"📝 {producto['descripcion']}")
-                st.write(f"💰 Precio Local: {producto['precio_local']} {producto['moneda']}")
-                st.write(f"🌍 Precio Internacional: {producto['precio_internacional']} USD")
-                st.write(f"📧 Vendedor: {producto['vendedor']}")
-
 
 # 📦 Marketplace de Productos
 st.title("📦 Marketplace de Productos")
@@ -192,6 +173,7 @@ if st.session_state.get("user_email") and st.session_state["user_email"] != "Non
         st.warning("⚠️ No hay productos disponibles.")
 else:
     st.warning("⚠️ Debes iniciar sesión para ver los productos.")
+
 
 
 # 📌 Agregar Nuevo Producto (Formulario centrado)
