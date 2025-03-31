@@ -24,7 +24,7 @@ PRODUCTOS_FILE = f"https://raw.githubusercontent.com/JulianTorrest/Prueba_Examen
 #USUARIOS_FILE = f"https://raw.githubusercontent.com/JulianTorrest/Prueba_Examen/main/usuarios.csv"
 
 # Guarda el archivo en el mismo directorio donde está el script
-USUARIOS_FILE = os.path.join(os.getcwd(), "https://raw.githubusercontent.com/JulianTorrest/Prueba_Examen/main/usuarios.csv")
+USUARIOS_FILE = os.path.join("/tmp", "https://raw.githubusercontent.com/JulianTorrest/Prueba_Examen/main/usuarios.csv")
 
 # Verifica si el archivo existe
 if not os.path.exists(USUARIOS_FILE):
