@@ -17,19 +17,12 @@ GITHUB_TOKEN = "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"
 GITHUB_RAW_URL = f"https://raw.githubusercontent.com/JulianTorrest/Prueba_Examen/main/productos.csv"
 API_URL = f"https://api.github.com/repos/{GITHUB_USERNAME}/{GITHUB_REPO}/contents/{GITHUB_FILE_PATH}"
 HEADERS = {"Authorization": f"token {GITHUB_TOKEN}"}
+HEADERS = {"Authorization": f"token {GITHUB_TOKEN}", "Accept": "application/vnd.github.v3+json"}
 
 # Archivo de tasas de cambio
 TASA_CAMBIO_FILE = f"https://raw.githubusercontent.com/JulianTorrest/Prueba_Examen/main/tasa_cambio.csv"
 PRODUCTOS_FILE = f"https://raw.githubusercontent.com/JulianTorrest/Prueba_Examen/main/productos.csv"
 #USUARIOS_FILE = f"https://raw.githubusercontent.com/JulianTorrest/Prueba_Examen/main/usuarios.csv"
-
-# Guarda el archivo en el mismo directorio donde está el script
-USUARIOS_FILE = os.path.join("/tmp", "https://raw.githubusercontent.com/JulianTorrest/Prueba_Examen/main/usuarios.csv")
-
-# Verifica si el archivo existe
-if not os.path.exists(USUARIOS_FILE):
-    with open(USUARIOS_FILE, "w") as f:
-        f.write("Nombre,Email,Contraseña\n")  # Crear archivo si no existe
 
 
 # Configuración inicial de sesión
