@@ -1,22 +1,25 @@
 import streamlit as st
 import pandas as pd
+import os
 import requests
 import base64
-from forex_python.converter import CurrencyRates
 
 # Configuración de la aplicación
-st.set_page_config(page_title="📦 Marketplace", layout="wide")
+st.set_page_config(page_title="📦 Marketplace", layout="centered")
 
 # Configuración de GitHub
 GITHUB_REPO = "Prueba_Examen"
 GITHUB_FILE_PATH = "productos.csv"
 GITHUB_USERNAME = "JulianTorrest"
 GITHUB_TOKEN = "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"
-GITHUB_RAW_URL = f"https://raw.githubusercontent.com/{GITHUB_USERNAME}/{GITHUB_REPO}/main/{GITHUB_FILE_PATH}"
+GITHUB_RAW_URL = f"https://raw.githubusercontent.com/JulianTorrest/Prueba_Examen/main/productos.csv"
 API_URL = f"https://api.github.com/repos/{GITHUB_USERNAME}/{GITHUB_REPO}/contents/{GITHUB_FILE_PATH}"
 HEADERS = {"Authorization": f"token {GITHUB_TOKEN}"}
 
-# Función para cargar productos desde GitHub
+# Archivo de tasas de cambio
+TASA_CAMBIO_FILE = f"https://raw.githubusercontent.com/JulianTorrest/Prueba_Examen/main/tasa_cambio.csv"
+
+# Cargar productos desde GitHub
 def cargar_productos():
     try:
         response = requests.get(GITHUB_RAW_URL)
@@ -26,13 +29,29 @@ def cargar_productos():
             st.error(f"⚠️ Error al cargar productos desde GitHub: {response.status_code}")
     except Exception as e:
         st.error(f"⚠️ Error en la carga de productos: {e}")
-    return pd.DataFrame(columns=["nombre", "descripcion", "precio_local", "tipo_moneda", "precio_internacional", "moneda_internacional", "unidad", "vendedor", "imagen"])
+    return pd.DataFrame(columns=["nombre", "descripcion", "unidad", "tipo_unidad", "precio_local", "tipo_moneda", "precio_internacional", "vendedor", "imagen"])
 
-# Función para subir productos a GitHub
-def guardar_producto(nombre, descripcion, precio_local, tipo_moneda, precio_internacional, moneda_internacional, unidad, vendedor, imagen):
+# Cargar tasas de cambio desde CSV
+def cargar_tasas():
+    try:
+        return pd.read_csv(TASA_CAMBIO_FILE)
+    except FileNotFoundError:
+        return pd.DataFrame(columns=["Moneda", "Código", "TasaCambio"])
+    except Exception as e:
+        st.error(f"⚠️ Error al leer tasas de cambio: {e}")
+        return pd.DataFrame()
+
+# Obtener tasa de cambio de una moneda
+def obtener_tasa(moneda):
+    tasas = cargar_tasas()
+    if moneda in tasas["Código"].values:
+        return tasas.loc[tasas["Código"] == moneda, "TasaCambio"].values[0]
+    return None
+
+# Subir productos a GitHub
+def guardar_producto(nombre, descripcion, unidad, tipo_unidad, precio_local, tipo_moneda, precio_internacional, vendedor, imagen):
     df = cargar_productos()
-    nuevo_producto = pd.DataFrame([[nombre, descripcion, precio_local, tipo_moneda, precio_internacional, moneda_internacional, unidad, vendedor, imagen]], 
-                                  columns=df.columns)
+    nuevo_producto = pd.DataFrame([[nombre, descripcion, unidad, tipo_unidad, precio_local, tipo_moneda, precio_internacional, vendedor, imagen]], columns=df.columns)
     df = pd.concat([df, nuevo_producto], ignore_index=True)
     
     csv_data = df.to_csv(index=False)
@@ -59,16 +78,6 @@ def guardar_producto(nombre, descripcion, precio_local, tipo_moneda, precio_inte
             st.error(f"⚠️ Error al guardar en GitHub: {put_response.status_code}")
     except Exception as e:
         st.error(f"⚠️ Error al subir productos: {e}")
-
-# Función para convertir precios utilizando forex-python
-def convertir_moneda(cantidad, moneda_origen, moneda_destino):
-    c = CurrencyRates()
-    try:
-        tasa_cambio = c.get_rate(moneda_origen, moneda_destino)
-        return round(cantidad * tasa_cambio, 2)
-    except Exception as e:
-        st.error(f"⚠️ Error al obtener la tasa de cambio: {e}")
-        return None
 
 # Manejo de sesión del usuario
 if "user_email" not in st.session_state:
@@ -113,10 +122,10 @@ if not productos.empty:
                 st.image(producto["imagen"], width=150)
             with col2:
                 st.subheader(producto["nombre"])
-                st.write(f"📝 Descripción: {producto['descripcion']}")
-                st.write(f"💰 Precio local: {producto['precio_local']} {producto['tipo_moneda']}")
-                st.write(f"💱 Precio internacional ({producto['moneda_internacional']}): {producto['precio_internacional']} {producto['moneda_internacional']}")
-                st.write(f"📏 Unidad: {producto['unidad']}")
+                st.write(f"📖 Descripción: {producto['descripcion']}")
+                st.write(f"📦 Unidad: {producto['unidad']} {producto['tipo_unidad']}")
+                st.write(f"💰 Precio Local: {producto['precio_local']} {producto['tipo_moneda']}")
+                st.write(f"🌍 Precio Internacional: {producto['precio_internacional']} USD")
                 st.write(f"📧 Vendedor: {producto['vendedor']}")
                 
                 if st.button(f"🛒 Comprar {producto['nombre']}", key=producto["nombre"]):
@@ -125,32 +134,37 @@ if not productos.empty:
                     else:
                         st.error("⚠️ Debes iniciar sesión para comprar.")
 
-# Sección para agregar nuevos productos (Centrada)
-st.markdown("## ➕ Agregar Producto")
-with st.form("add_product_form"):
-    nombre_producto = st.text_input("Nombre del Producto")
-    descripcion_producto = st.text_area("Descripción del Producto")
-    
-    tipo_moneda = st.selectbox("Tipo de Moneda", ["COP", "USD", "EUR"])
-    precio_local = st.number_input(f"Precio en {tipo_moneda}", min_value=0.1)
-    
-    # Convertir precio local a internacional
-    moneda_destino = "USD" if tipo_moneda != "USD" else "EUR"
-    precio_internacional = convertir_moneda(precio_local, tipo_moneda, moneda_destino)
+# Sección para agregar nuevos productos
+def agregar_producto():
+    st.title("➕ Agregar Producto")
 
-    unidad = st.text_input("Unidad de medida (ejemplo: kg, unidad, litro)")
-    
-    imagen_url = st.text_input("URL de la Imagen")
-    submitted = st.form_submit_button("Publicar Producto")
-    
-    if submitted:
-        if st.session_state["user_email"]:
-            if nombre_producto and descripcion_producto and precio_local and imagen_url and unidad:
-                guardar_producto(nombre_producto, descripcion_producto, precio_local, tipo_moneda, precio_internacional, moneda_destino, unidad, st.session_state["user_email"], imagen_url)
-                st.success("Producto agregado con éxito.")
-                st.experimental_rerun()
+    with st.form("add_product_form"):
+        nombre_producto = st.text_input("Nombre del Producto")
+        descripcion_producto = st.text_area("Descripción")
+        unidad = st.number_input("Cantidad", min_value=1)
+        tipo_unidad = st.selectbox("Tipo de Unidad", ["Kg", "L", "Unidad", "Caja"])
+        precio_local = st.number_input("Precio Local", min_value=0.1)
+        tipo_moneda = st.selectbox("Tipo de Moneda", ["COP", "USD", "EUR", "RUB", "GBP", "CAD", "AUD", "NZD"])
+        imagen_url = st.text_input("URL de la Imagen (Opcional)")
+
+        tasa_cambio = obtener_tasa(tipo_moneda)
+        precio_internacional = round(precio_local / tasa_cambio, 2) if tasa_cambio else "N/A"
+
+        submitted = st.form_submit_button("Publicar Producto")
+        
+        if submitted:
+            if st.session_state["user_email"]:
+                if nombre_producto and precio_local and unidad and tipo_unidad and descripcion_producto:
+                    guardar_producto(
+                        nombre_producto, descripcion_producto, unidad, tipo_unidad, 
+                        precio_local, tipo_moneda, precio_internacional, st.session_state["user_email"], imagen_url
+                    )
+                    st.success("Producto agregado con éxito. Revisa tu correo.")
+                    st.experimental_rerun()
+                else:
+                    st.error("⚠️ Completa todos los campos obligatorios.")
             else:
-                st.error("⚠️ Completa todos los campos.")
-        else:
-            st.error("⚠️ Debes iniciar sesión para agregar productos.")
+                st.error("⚠️ Debes iniciar sesión para agregar productos.")
 
+# Ejecutar la función para agregar productos
+agregar_producto()
