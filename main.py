@@ -31,18 +31,7 @@ if "user_email" not in st.session_state:
 # Función para cifrar contraseñas con SHA256
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
-
-# Función para cargar usuarios registrados
-def cargar_usuarios():
-    try:
-        if os.path.exists(USUARIOS_FILE):  # Verifica si el archivo existe
-            return pd.read_csv(USUARIOS_FILE)
-        else:
-            return pd.DataFrame(columns=["Nombre", "Email", "Contraseña"])
-    except Exception as e:
-        st.error(f"⚠️ Error al leer usuarios: {e}")
-        return pd.DataFrame()
-
+    
 # Función para registrar un usuario
 def registrar_usuario(nombre, email, password):
     usuarios = cargar_usuarios()
@@ -56,6 +45,17 @@ def registrar_usuario(nombre, email, password):
         usuarios.to_csv(USUARIOS_FILE, index=False)
         st.success("✅ Registro exitoso. Ahora puedes iniciar sesión.")
         return True
+
+# Función para cargar usuarios registrados
+def cargar_usuarios():
+    try:
+        if os.path.exists(USUARIOS_FILE):  # Verifica si el archivo existe
+            return pd.read_csv(USUARIOS_FILE)
+        else:
+            return pd.DataFrame(columns=["Nombre", "Email", "Contraseña"])
+    except Exception as e:
+        st.error(f"⚠️ Error al leer usuarios: {e}")
+        return pd.DataFrame()
 
 # Función para iniciar sesión
 def iniciar_sesion(email, password):
