@@ -1,5 +1,5 @@
 import streamlit as st
-import pandas as pd
+import pandas as pd  
 import os
 import requests
 import base64
@@ -117,6 +117,7 @@ def cargar_productos():
     except Exception as e:
         st.error(f"⚠️ Error al leer productos: {e}")
         return pd.DataFrame()
+
 
 # Función para cargar tasas de cambio
 def cargar_tasas_cambio():
