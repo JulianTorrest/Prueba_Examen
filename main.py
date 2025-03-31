@@ -194,7 +194,7 @@ if submitted:
                 imagen_url = "https://via.placeholder.com/150"  # Imagen por defecto
 
             guardar_producto(nombre_producto, descripcion_producto, precio_producto, moneda_seleccionada, st.session_state["user_email"], imagen_url)
-            st.experimental_rerun()
+            st.rerun()  # ✅ Usar st.rerun() en lugar de st.experimental_rerun()
         else:
             st.error("⚠️ Completa todos los campos obligatorios.")
     else:
