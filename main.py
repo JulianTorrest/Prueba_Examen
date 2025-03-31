@@ -113,7 +113,7 @@ st.title("📦 Marketplace de Productos")
 # Función para cargar productos
 def cargar_productos():
     try:
-        return pd.read_csv(PRODUCTOS_FILE)
+        return pd.read_csv(GITHUB_RAW_URL)
     except FileNotFoundError:
         return pd.DataFrame(columns=["nombre", "descripcion", "precio_local", "precio_internacional", "moneda", "vendedor", "imagen"])
     except Exception as e:
@@ -143,7 +143,7 @@ def guardar_producto(nombre, descripcion, precio_local, moneda, vendedor, imagen
     nuevo_producto = pd.DataFrame([[nombre, descripcion, precio_local, precio_internacional, moneda, vendedor, imagen]], 
                                   columns=df.columns)
     df = pd.concat([df, nuevo_producto], ignore_index=True)
-    df.to_csv(PRODUCTOS_FILE, index=False)
+    df.to_csv(GITHUB_RAW_URL, index=False)
     st.success("✅ Producto guardado correctamente.")
 
 # Mostrar productos disponibles
