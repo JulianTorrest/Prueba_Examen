@@ -187,7 +187,7 @@ with st.container():
     st.markdown("</div>", unsafe_allow_html=True)
 
 if submitted:
-    if st.session_state.get("user_email") and st.session_state["user_email"] != "None"
+    if st.session_state.get("user_email") and st.session_state["user_email"] != "None":
         if nombre_producto and descripcion_producto and precio_producto and moneda_seleccionada and imagen_url:
             guardar_producto(nombre_producto, descripcion_producto, precio_producto, moneda_seleccionada, st.session_state["user_email"], imagen_url)
             st.experimental_rerun()
