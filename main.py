@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import requests
 import base64
+from forex_python.converter import CurrencyRates
 
 # Configuración de la aplicación
 st.set_page_config(page_title="📦 Marketplace", layout="wide")
@@ -11,7 +12,7 @@ GITHUB_REPO = "Prueba_Examen"
 GITHUB_FILE_PATH = "productos.csv"
 GITHUB_USERNAME = "JulianTorrest"
 GITHUB_TOKEN = "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"
-GITHUB_RAW_URL = f"https://raw.githubusercontent.com/JulianTorrest/Prueba_Examen/main/productos.csv"
+GITHUB_RAW_URL = f"https://raw.githubusercontent.com/{GITHUB_USERNAME}/{GITHUB_REPO}/main/{GITHUB_FILE_PATH}"
 API_URL = f"https://api.github.com/repos/{GITHUB_USERNAME}/{GITHUB_REPO}/contents/{GITHUB_FILE_PATH}"
 HEADERS = {"Authorization": f"token {GITHUB_TOKEN}"}
 
@@ -25,12 +26,12 @@ def cargar_productos():
             st.error(f"⚠️ Error al cargar productos desde GitHub: {response.status_code}")
     except Exception as e:
         st.error(f"⚠️ Error en la carga de productos: {e}")
-    return pd.DataFrame(columns=["nombre", "precio_local", "precio_usd", "tipo_unidad", "unidad", "vendedor", "imagen"])
+    return pd.DataFrame(columns=["nombre", "descripcion", "precio_local", "tipo_moneda", "precio_internacional", "moneda_internacional", "unidad", "vendedor", "imagen"])
 
 # Función para subir productos a GitHub
-def guardar_producto(nombre, precio_local, precio_usd, tipo_unidad, unidad, vendedor, imagen):
+def guardar_producto(nombre, descripcion, precio_local, tipo_moneda, precio_internacional, moneda_internacional, unidad, vendedor, imagen):
     df = cargar_productos()
-    nuevo_producto = pd.DataFrame([[nombre, precio_local, precio_usd, tipo_unidad, unidad, vendedor, imagen]], 
+    nuevo_producto = pd.DataFrame([[nombre, descripcion, precio_local, tipo_moneda, precio_internacional, moneda_internacional, unidad, vendedor, imagen]], 
                                   columns=df.columns)
     df = pd.concat([df, nuevo_producto], ignore_index=True)
     
@@ -59,9 +60,15 @@ def guardar_producto(nombre, precio_local, precio_usd, tipo_unidad, unidad, vend
     except Exception as e:
         st.error(f"⚠️ Error al subir productos: {e}")
 
-# Función para convertir precios
-def convertir_a_dolares(precio_local, tasa_cambio=4000):
-    return round(precio_local / tasa_cambio, 2)
+# Función para convertir precios utilizando forex-python
+def convertir_moneda(cantidad, moneda_origen, moneda_destino):
+    c = CurrencyRates()
+    try:
+        tasa_cambio = c.get_rate(moneda_origen, moneda_destino)
+        return round(cantidad * tasa_cambio, 2)
+    except Exception as e:
+        st.error(f"⚠️ Error al obtener la tasa de cambio: {e}")
+        return None
 
 # Manejo de sesión del usuario
 if "user_email" not in st.session_state:
@@ -106,9 +113,10 @@ if not productos.empty:
                 st.image(producto["imagen"], width=150)
             with col2:
                 st.subheader(producto["nombre"])
-                st.write(f"💰 Precio local: ${producto['precio_local']}")
-                st.write(f"💵 Precio en USD: ${producto['precio_usd']}")
-                st.write(f"📏 Unidad: {producto['tipo_unidad']} ({producto['unidad']})")
+                st.write(f"📝 Descripción: {producto['descripcion']}")
+                st.write(f"💰 Precio local: {producto['precio_local']} {producto['tipo_moneda']}")
+                st.write(f"💱 Precio internacional ({producto['moneda_internacional']}): {producto['precio_internacional']} {producto['moneda_internacional']}")
+                st.write(f"📏 Unidad: {producto['unidad']}")
                 st.write(f"📧 Vendedor: {producto['vendedor']}")
                 
                 if st.button(f"🛒 Comprar {producto['nombre']}", key=producto["nombre"]):
@@ -117,40 +125,32 @@ if not productos.empty:
                     else:
                         st.error("⚠️ Debes iniciar sesión para comprar.")
 
-# Sección para agregar nuevos productos
-def agregar_producto():
-    st.markdown("<h2 style='text-align: center;'>➕ Agregar Nuevo Producto</h2>", unsafe_allow_html=True)
+# Sección para agregar nuevos productos (Centrada)
+st.markdown("## ➕ Agregar Producto")
+with st.form("add_product_form"):
+    nombre_producto = st.text_input("Nombre del Producto")
+    descripcion_producto = st.text_area("Descripción del Producto")
     
-    with st.container():
-        col1, col2, col3 = st.columns([1, 2, 1])
+    tipo_moneda = st.selectbox("Tipo de Moneda", ["COP", "USD", "EUR"])
+    precio_local = st.number_input(f"Precio en {tipo_moneda}", min_value=0.1)
+    
+    # Convertir precio local a internacional
+    moneda_destino = "USD" if tipo_moneda != "USD" else "EUR"
+    precio_internacional = convertir_moneda(precio_local, tipo_moneda, moneda_destino)
 
-        with col2:  # Centrar el formulario
-            with st.form("add_product_form"):
-                nombre_producto = st.text_input("📌 Nombre del Producto")
-                
-                # Precio en moneda local y conversión automática a dólares
-                precio_local = st.number_input("💰 Precio en moneda local", min_value=0.1)
-                precio_dolares = convertir_a_dolares(precio_local)
-                st.write(f"💵 **Precio en USD:** ${precio_dolares}")
+    unidad = st.text_input("Unidad de medida (ejemplo: kg, unidad, litro)")
+    
+    imagen_url = st.text_input("URL de la Imagen")
+    submitted = st.form_submit_button("Publicar Producto")
+    
+    if submitted:
+        if st.session_state["user_email"]:
+            if nombre_producto and descripcion_producto and precio_local and imagen_url and unidad:
+                guardar_producto(nombre_producto, descripcion_producto, precio_local, tipo_moneda, precio_internacional, moneda_destino, unidad, st.session_state["user_email"], imagen_url)
+                st.success("Producto agregado con éxito.")
+                st.experimental_rerun()
+            else:
+                st.error("⚠️ Completa todos los campos.")
+        else:
+            st.error("⚠️ Debes iniciar sesión para agregar productos.")
 
-                # Tipo de unidad y unidad
-                tipo_unidad = st.selectbox("📏 Tipo de Unidad", ["Cantidad", "Peso", "Volumen"])
-                unidad = st.text_input("🔢 Unidad (ej. kg, unidades, litros)")
-                
-                # Imagen (opcional, con una por defecto si no se ingresa una URL)
-                imagen_url = st.text_input("🖼️ URL de la Imagen (opcional)")
-                imagen_url = imagen_url if imagen_url else "https://via.placeholder.com/150"
-
-                submitted = st.form_submit_button("📤 Publicar Producto")
-
-                if submitted:
-                    if nombre_producto and precio_local and unidad and tipo_unidad:
-                        guardar_producto(nombre_producto, precio_local, precio_dolares, tipo_unidad, unidad, 
-                                         st.session_state["user_email"], imagen_url)
-                        st.success(f"✅ **{nombre_producto}** agregado correctamente.")
-                        st.experimental_rerun()
-                    else:
-                        st.error("⚠️ Completa todos los campos obligatorios.")
-
-# Ejecutar la función para agregar productos
-agregar_producto()
