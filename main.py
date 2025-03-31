@@ -130,6 +130,13 @@ def cargar_tasas_cambio():
         st.error(f"⚠️ Error al leer tasas de cambio: {e}")
         return {}
 
+# Obtener tasa de cambio de una moneda
+def obtener_tasa(moneda):
+    tasas = cargar_tasas()
+    if moneda in tasas["Código"].values:
+        return tasas.loc[tasas["Código"] == moneda, "TasaCambio"].values[0]
+    return None
+
 # Función para guardar producto
 def guardar_producto(nombre, descripcion, precio_local, moneda, vendedor, imagen):
     df = cargar_productos()
@@ -162,24 +169,28 @@ if not productos.empty:
                 st.write(f"🌍 Precio Internacional: {producto['precio_internacional']} USD")
                 st.write(f"📧 Vendedor: {producto['vendedor']}")
 
-# 📌 Agregar Nuevo Producto
-st.sidebar.title("➕ Agregar Producto")
-monedas_disponibles = ["USD", "EUR", "GBP", "RUB", "CAD", "AUD", "NZD"]
+# 📌 Agregar Nuevo Producto (Formulario centrado)
+st.subheader("➕ Agregar Producto")
 
-with st.sidebar.form("add_product_form"):
-    nombre_producto = st.text_input("Nombre del Producto")
-    descripcion_producto = st.text_area("Descripción")
-    precio_producto = st.number_input("Precio", min_value=0.1)
-    moneda_seleccionada = st.selectbox("Moneda", monedas_disponibles)
-    imagen_url = st.text_input("URL de la Imagen")
-    submitted = st.form_submit_button("Publicar Producto")
+with st.container():
+    st.markdown("<div style='display: flex; justify-content: center;'>", unsafe_allow_html=True)
+    
+    with st.form("add_product_form"):
+        nombre_producto = st.text_input("Nombre del Producto")
+        descripcion_producto = st.text_area("Descripción")
+        precio_producto = st.number_input("Precio", min_value=0.1)
+        moneda_seleccionada = st.selectbox("Moneda", ["USD", "EUR", "GBP", "RUB", "CAD", "AUD", "NZD"])
+        imagen_url = st.text_input("URL de la Imagen")
+        submitted = st.form_submit_button("Publicar Producto")
 
-    if submitted:
-        if st.session_state["user_email"]:
-            if nombre_producto and descripcion_producto and precio_producto and moneda_seleccionada and imagen_url:
-                guardar_producto(nombre_producto, descripcion_producto, precio_producto, moneda_seleccionada, st.session_state["user_email"], imagen_url)
-                st.experimental_rerun()
-            else:
-                st.sidebar.error("⚠️ Completa todos los campos.")
+    st.markdown("</div>", unsafe_allow_html=True)
+
+if submitted:
+    if st.session_state.get("user_email"):
+        if nombre_producto and descripcion_producto and precio_producto and moneda_seleccionada and imagen_url:
+            guardar_producto(nombre_producto, descripcion_producto, precio_producto, moneda_seleccionada, st.session_state["user_email"], imagen_url)
+            st.experimental_rerun()
         else:
-            st.sidebar.error("⚠️ Debes iniciar sesión para agregar productos.")
+            st.error("⚠️ Completa todos los campos.")
+    else:
+        st.error("⚠️ Debes iniciar sesión para agregar productos.")
