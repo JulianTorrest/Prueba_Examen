@@ -188,10 +188,15 @@ with st.container():
 
 if submitted:
     if st.session_state.get("user_email") and st.session_state["user_email"] != "None":
-        if nombre_producto and descripcion_producto and precio_producto and moneda_seleccionada and imagen_url:
+        if nombre_producto and descripcion_producto and precio_producto and moneda_seleccionada:
+            # Si no se proporciona una imagen, usar una por defecto
+            if not imagen_url:
+                imagen_url = "https://via.placeholder.com/150"  # Imagen por defecto
+
             guardar_producto(nombre_producto, descripcion_producto, precio_producto, moneda_seleccionada, st.session_state["user_email"], imagen_url)
             st.experimental_rerun()
         else:
-            st.error("⚠️ Completa todos los campos.")
+            st.error("⚠️ Completa todos los campos obligatorios.")
     else:
         st.error("⚠️ Debes iniciar sesión para agregar productos.")
+
