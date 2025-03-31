@@ -4,3 +4,4 @@ stripe
 requests
 mailersend
 pandas
+forex-python
