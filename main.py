@@ -111,6 +111,32 @@ if st.sidebar.button("Cerrar sesión"):
 # 📦 Marketplace de Productos
 st.title("📦 Marketplace de Productos")
 
+# 📦 Marketplace de Productos
+st.title("📦 Marketplace de Productos")
+
+# Solo mostrar productos si hay un usuario logeado
+if st.session_state.get("user_email") and st.session_state["user_email"] != "None":
+    productos = cargar_productos()
+
+    if not productos.empty:
+        st.subheader("🛒 Listado de Productos Disponibles")
+        for _, producto in productos.iterrows():
+            with st.container():
+                col1, col2 = st.columns([1, 3])
+                with col1:
+                    st.image(producto["imagen"], width=150)
+                with col2:
+                    st.subheader(producto["nombre"])
+                    st.write(f"📝 {producto['descripcion']}")
+                    st.write(f"💰 Precio Local: {producto['precio_local']} {producto['moneda']}")
+                    st.write(f"🌍 Precio Internacional: {producto['precio_internacional']} USD")
+                    st.write(f"📧 Vendedor: {producto['vendedor']}")
+    else:
+        st.warning("⚠️ No hay productos disponibles.")
+else:
+    st.warning("⚠️ Debes iniciar sesión para ver los productos.")
+
+
 # Función para cargar productos
 def cargar_productos():
     try:
