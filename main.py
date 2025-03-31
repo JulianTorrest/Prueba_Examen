@@ -21,7 +21,16 @@ HEADERS = {"Authorization": f"token {GITHUB_TOKEN}"}
 # Archivo de tasas de cambio
 TASA_CAMBIO_FILE = f"https://raw.githubusercontent.com/JulianTorrest/Prueba_Examen/main/tasa_cambio.csv"
 PRODUCTOS_FILE = f"https://raw.githubusercontent.com/JulianTorrest/Prueba_Examen/main/productos.csv"
-USUARIOS_FILE = f"https://raw.githubusercontent.com/JulianTorrest/Prueba_Examen/main/usuarios.csv"
+#USUARIOS_FILE = f"https://raw.githubusercontent.com/JulianTorrest/Prueba_Examen/main/usuarios.csv"
+
+# Guarda el archivo en el mismo directorio donde está el script
+USUARIOS_FILE = os.path.join(os.getcwd(), "https://raw.githubusercontent.com/JulianTorrest/Prueba_Examen/main/usuarios.csv")
+
+# Verifica si el archivo existe
+if not os.path.exists(USUARIOS_FILE):
+    with open(USUARIOS_FILE, "w") as f:
+        f.write("Nombre,Email,Contraseña\n")  # Crear archivo si no existe
+
 
 # Configuración inicial de sesión
 if "user_email" not in st.session_state:
@@ -34,17 +43,33 @@ def hash_password(password):
     
 # Función para registrar un usuario
 def registrar_usuario(nombre, email, password):
-    usuarios = cargar_usuarios()
+    # Intenta cargar usuarios existentes
+    if os.path.exists(USUARIOS_FILE):
+        try:
+            usuarios = pd.read_csv(USUARIOS_FILE)
+        except Exception as e:
+            st.error(f"⚠️ Error al leer usuarios: {e}")
+            return False
+    else:
+        usuarios = pd.DataFrame(columns=["Nombre", "Email", "Contraseña"])  # Crea un DataFrame vacío
+
+    # Si el usuario ya existe, mostrar un error
     if email in usuarios["Email"].values:
         st.warning("⚠️ Este correo ya está registrado. Inicia sesión.")
         return False
-    else:
-        hashed_password = hash_password(password)
-        nuevo_usuario = pd.DataFrame([[nombre, email, hashed_password]], columns=["Nombre", "Email", "Contraseña"])
-        usuarios = pd.concat([usuarios, nuevo_usuario], ignore_index=True)
-        usuarios.to_csv(USUARIOS_FILE, index=False)
+
+    # Agregar nuevo usuario
+    nuevo_usuario = pd.DataFrame([[nombre, email, password]], columns=["Nombre", "Email", "Contraseña"])
+    usuarios = pd.concat([usuarios, nuevo_usuario], ignore_index=True)
+
+    try:
+        usuarios.to_csv(USUARIOS_FILE, index=False)  # Guardar en CSV
         st.success("✅ Registro exitoso. Ahora puedes iniciar sesión.")
         return True
+    except Exception as e:
+        st.error(f"⚠️ Error al guardar el usuario: {e}")
+        return False
+
 
 # Función para cargar usuarios registrados
 def cargar_usuarios():
