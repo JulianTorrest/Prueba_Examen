@@ -108,6 +108,16 @@ st.sidebar.success(f"🔓 Sesión iniciada como {st.session_state['user_name']}"
 if st.sidebar.button("Cerrar sesión"):
     cerrar_sesion()
 
+# Función para cargar productos
+def cargar_productos():
+    try:
+        return pd.read_csv(GITHUB_RAW_URL)
+    except FileNotFoundError:
+        return pd.DataFrame(columns=["nombre", "descripcion", "precio_local", "precio_internacional", "moneda", "vendedor", "imagen"])
+    except Exception as e:
+        st.error(f"⚠️ Error al leer productos: {e}")
+        return pd.DataFrame()
+
 # 📦 Marketplace de Productos
 st.title("📦 Marketplace de Productos")
 
@@ -132,17 +142,6 @@ if st.session_state.get("user_email") and st.session_state["user_email"] != "Non
         st.warning("⚠️ No hay productos disponibles.")
 else:
     st.warning("⚠️ Debes iniciar sesión para ver los productos.")
-
-
-# Función para cargar productos
-def cargar_productos():
-    try:
-        return pd.read_csv(GITHUB_RAW_URL)
-    except FileNotFoundError:
-        return pd.DataFrame(columns=["nombre", "descripcion", "precio_local", "precio_internacional", "moneda", "vendedor", "imagen"])
-    except Exception as e:
-        st.error(f"⚠️ Error al leer productos: {e}")
-        return pd.DataFrame()
 
 # Función para cargar tasas de cambio
 def cargar_tasas_cambio():
