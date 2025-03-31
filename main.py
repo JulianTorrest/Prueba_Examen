@@ -21,6 +21,7 @@ HEADERS = {"Authorization": f"token {GITHUB_TOKEN}"}
 # Archivo de tasas de cambio
 TASA_CAMBIO_FILE = f"https://raw.githubusercontent.com/JulianTorrest/Prueba_Examen/main/tasa_cambio.csv"
 PRODUCTOS_FILE = f"https://raw.githubusercontent.com/JulianTorrest/Prueba_Examen/main/productos.csv"
+USUARIOS_FILE = "https://raw.githubusercontent.com/JulianTorrest/Prueba_Examen/main/usuarios.csv"
 
 # Configuración inicial de sesión
 if "user_email" not in st.session_state:
