@@ -24,11 +24,10 @@ TASA_CAMBIO_FILE = f"https://raw.githubusercontent.com/JulianTorrest/Prueba_Exam
 PRODUCTOS_FILE = f"https://raw.githubusercontent.com/JulianTorrest/Prueba_Examen/main/productos.csv"
 #USUARIOS_FILE = f"https://raw.githubusercontent.com/JulianTorrest/Prueba_Examen/main/usuarios.csv"
 
-
-# Configuración inicial de sesión
+# Forzar usuario logueado automáticamente
 if "user_email" not in st.session_state:
-    st.session_state["user_email"] = None
-    st.session_state["user_name"] = None
+    st.session_state["user_email"] = "usuario_prueba@example.com"  # Simula un usuario logueado
+    st.session_state["user_name"] = "Usuario de Prueba"  # Nombre simulado
 
 # Función para cifrar contraseñas con SHA256
 def hash_password(password):
@@ -101,31 +100,12 @@ def cerrar_sesion():
 # 📌 Sección de usuario en la barra lateral
 st.sidebar.title("👤 Usuario")
 
-if st.session_state["user_email"]:
-    st.sidebar.success(f"🔓 Sesión iniciada como {st.session_state['user_name']}")
-    if st.sidebar.button("Cerrar sesión"):
-        cerrar_sesion()
-else:
-    # Sección de registro
-    st.sidebar.subheader("🆕 Registrarse")
-    with st.sidebar.form("registro_form"):
-        nombre_registro = st.text_input("Nombre Completo")
-        email_registro = st.text_input("Correo Electrónico")
-        password_registro = st.text_input("Contraseña", type="password")
-        submitted_registro = st.form_submit_button("Registrarse")
-        
-        if submitted_registro and nombre_registro and email_registro and password_registro:
-            registrar_usuario(nombre_registro, email_registro, password_registro)
+# Mostrar que el usuario ya está logueado
+st.sidebar.success(f"🔓 Sesión iniciada como {st.session_state['user_name']}")
 
-    # Sección de inicio de sesión
-    st.sidebar.subheader("🔑 Iniciar Sesión")
-    with st.sidebar.form("login_form"):
-        email_login = st.text_input("Correo Electrónico", key="email_login")
-        password_login = st.text_input("Contraseña", type="password", key="password_login")
-        submitted_login = st.form_submit_button("Iniciar sesión")
-        
-        if submitted_login and email_login and password_login:
-            iniciar_sesion(email_login, password_login)
+# Opción de cerrar sesión
+if st.sidebar.button("Cerrar sesión"):
+    cerrar_sesion()
 
 # 📦 Marketplace de Productos
 st.title("📦 Marketplace de Productos")
