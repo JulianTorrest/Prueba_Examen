@@ -111,9 +111,6 @@ if st.sidebar.button("Cerrar sesión"):
 # 📦 Marketplace de Productos
 st.title("📦 Marketplace de Productos")
 
-# 📦 Marketplace de Productos
-st.title("📦 Marketplace de Productos")
-
 # Solo mostrar productos si hay un usuario logeado
 if st.session_state.get("user_email") and st.session_state["user_email"] != "None":
     productos = cargar_productos()
