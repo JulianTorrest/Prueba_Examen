@@ -1,8 +1,8 @@
-Moneda	Código	TasaCambio
-Dólar Americano	USD	4000
-Euro	EUR	4300
-Libra Esterlina	GBP	5000
-Rublo Ruso	RUB	50
-Dólar Canadiense	CAD	3200
-Dólar Australiano	AUD	2900
-Dólar Neozelandés	NZD	2700
+Moneda,Código,TasaCambio
+Dólar Americano,USD,4000
+Euro,EUR,4300
+Rublo,RUB,50
+Libra Esterlina,GBP,5000
+Dólar Canadiense,CAD,3000
+Dólar Australiano,AUD,2800
+Dólar Neozelandés,NZD,2700
