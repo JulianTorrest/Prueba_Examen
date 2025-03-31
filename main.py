@@ -1,14 +1,7 @@
 import streamlit as st
 import pandas as pd
-import os
 import requests
 import base64
-from email_notifications import (
-    correo_registro,
-    correo_producto_publicado,
-    correo_confirmacion_compra,
-    correo_notificacion_vendedor
-)
 
 # Configuración de la aplicación
 st.set_page_config(page_title="📦 Marketplace", layout="wide")
@@ -32,22 +25,22 @@ def cargar_productos():
             st.error(f"⚠️ Error al cargar productos desde GitHub: {response.status_code}")
     except Exception as e:
         st.error(f"⚠️ Error en la carga de productos: {e}")
-    return pd.DataFrame(columns=["nombre", "precio", "vendedor", "imagen"])
+    return pd.DataFrame(columns=["nombre", "precio", "vendedor", "imagen", "unidad", "tipo_unidad", "precio_local", "precio_dolares"])
+
+# Función para convertir precios (ejemplo con tasa fija, puedes usar una API)
+def convertir_a_dolares(precio_local, tasa_cambio=4000):
+    return round(precio_local / tasa_cambio, 2)
 
 # Subir productos a GitHub
-def guardar_producto(nombre, precio, vendedor, imagen):
+def guardar_producto(nombre, precio, vendedor, imagen, unidad, tipo_unidad, precio_local, precio_dolares):
     df = cargar_productos()
-    nuevo_producto = pd.DataFrame([[nombre, precio, vendedor, imagen]], columns=df.columns)
+    nuevo_producto = pd.DataFrame([[nombre, precio, vendedor, imagen, unidad, tipo_unidad, precio_local, precio_dolares]], columns=df.columns)
     df = pd.concat([df, nuevo_producto], ignore_index=True)
     
     csv_data = df.to_csv(index=False)
     try:
         response = requests.get(API_URL, headers=HEADERS)
-        if response.status_code == 200:
-            file_data = response.json()
-            sha = file_data["sha"]
-        else:
-            sha = None  # Archivo no existe, se creará
+        sha = response.json().get("sha", None) if response.status_code == 200 else None
 
         payload = {
             "message": "Actualización de productos",
@@ -91,7 +84,6 @@ else:
             if nombre and email:
                 st.session_state["user_email"] = email
                 st.session_state["user_name"] = nombre
-                correo_registro(email, nombre)
                 st.sidebar.success("Registro exitoso. Revisa tu correo.")
                 st.rerun()
             else:
@@ -114,33 +106,40 @@ if not productos.empty:
                 
                 if st.button(f"🛒 Comprar {producto['nombre']}", key=producto["nombre"]):
                     if st.session_state["user_email"]:
-                        correo_confirmacion_compra(st.session_state["user_email"], producto["nombre"], producto["precio"])
-                        correo_notificacion_vendedor(producto["vendedor"], st.session_state["user_email"], producto["nombre"])
                         st.success("Compra realizada. Revisa tu correo.")
                     else:
                         st.error("⚠️ Debes iniciar sesión para comprar.")
 
-# Sección para agregar nuevos productos
+# Formulario para agregar productos centrado en la página
 def agregar_producto():
-    st.sidebar.title("➕ Agregar Producto")
-    with st.sidebar.form("add_product_form"):
-        nombre_producto = st.text_input("Nombre del Producto")
-        precio_producto = st.number_input("Precio", min_value=0.1)
-        imagen_url = st.text_input("URL de la Imagen")
-        submitted = st.form_submit_button("Publicar Producto")
-        
-        if submitted:
-            if st.session_state["user_email"]:
-                if nombre_producto and precio_producto and imagen_url:
-                    guardar_producto(nombre_producto, precio_producto, st.session_state["user_email"], imagen_url)
-                    correo_producto_publicado(st.session_state["user_email"], nombre_producto)
-                    st.sidebar.success("Producto agregado con éxito. Revisa tu correo.")
-                    st.experimental_rerun()
-                else:
-                    st.sidebar.error("⚠️ Completa todos los campos.")
-            else:
-                st.sidebar.error("⚠️ Debes iniciar sesión para agregar productos.")
+    st.markdown("<h2 style='text-align: center;'>➕ Agregar Nuevo Producto</h2>", unsafe_allow_html=True)
+    
+    with st.container():
+        col1, col2, col3 = st.columns([1, 2, 1])
 
-# Ejecutar la función para agregar productos
+        with col2:  # Centrar el formulario
+            with st.form("add_product_form"):
+                nombre_producto = st.text_input("Nombre del Producto")
+                precio_local = st.number_input("Precio en moneda local", min_value=0.1)
+                precio_dolares = convertir_a_dolares(precio_local)
+                st.write(f"💵 Precio en USD: ${precio_dolares}")
+
+                tipo_unidad = st.selectbox("Tipo de Unidad", ["Cantidad", "Peso", "Volumen"])
+                unidad = st.text_input("Unidad (ej. kg, unidades, litros)")
+                imagen_url = st.text_input("URL de la Imagen (opcional)")
+                imagen_url = imagen_url if imagen_url else "https://via.placeholder.com/150"
+
+                submitted = st.form_submit_button("Publicar Producto")
+
+                if submitted:
+                    if st.session_state["user_email"]:
+                        if nombre_producto and precio_local and unidad and tipo_unidad:
+                            guardar_producto(nombre_producto, precio_dolares, st.session_state["user_email"], imagen_url, unidad, tipo_unidad, precio_local, precio_dolares)
+                            st.success("Producto agregado con éxito. Revisa tu correo.")
+                            st.experimental_rerun()
+                        else:
+                            st.error("⚠️ Completa todos los campos obligatorios.")
+                    else:
+                        st.error("⚠️ Debes iniciar sesión para agregar productos.")
+
 agregar_producto()
-
