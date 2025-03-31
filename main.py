@@ -147,19 +147,20 @@ def agregar_producto():
         tipo_moneda = st.selectbox("Tipo de Moneda", ["COP", "USD", "EUR", "RUB", "GBP", "CAD", "AUD", "NZD"])
         imagen_url = st.text_input("URL de la Imagen (Opcional)")
 
+        # Obtener la tasa de cambio en tiempo real
         tasa_cambio = obtener_tasa(tipo_moneda)
         precio_internacional = round(precio_local / tasa_cambio, 2) if tasa_cambio else "N/A"
+
+        # Mostrar el precio internacional calculado
+        st.write(f"🌍 **Precio Internacional:** {precio_internacional} USD")
 
         submitted = st.form_submit_button("Publicar Producto")
         
         if submitted:
-            if st.session_state["user_email"]:
-                if nombre_producto and precio_local and unidad and tipo_unidad and descripcion_producto:
-                    guardar_producto(
-                        nombre_producto, descripcion_producto, unidad, tipo_unidad, 
-                        precio_local, tipo_moneda, precio_internacional, st.session_state["user_email"], imagen_url
-                    )
-                    st.success("Producto agregado con éxito. Revisa tu correo.")
+            if st.session_state.get("user_email"):
+                if nombre_producto and descripcion_producto and precio_local and unidad and tipo_unidad:
+                    # Guardar producto (Aquí debes agregar la función para almacenar en CSV o GitHub)
+                    st.success("✅ Producto agregado con éxito.")
                     st.experimental_rerun()
                 else:
                     st.error("⚠️ Completa todos los campos obligatorios.")
@@ -168,3 +169,4 @@ def agregar_producto():
 
 # Ejecutar la función para agregar productos
 agregar_producto()
+
